@@ -31,7 +31,7 @@ class Id
      *
      *  @return string
      */
-    public function natural(): string
+    public function toNatural(): string
     {
         return $this->id;
     }

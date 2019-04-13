@@ -1,14 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Controlers;
+namespace App\Controllers;
 
-use Kayex\HttpStatus;
-use Psr\Http\Message\RequestInterface;
+use Kayex\HttpCodes;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 use \Exception;
-use App\Exceptions\ValidationException;
+use App\Exceptions\ValidationError;
 use App\Repositories\Todo as TodoRepository;
 
 use App\Domain\TodoEntity;
@@ -43,44 +43,43 @@ class Todo
     /**
      *  list todo
      *
-     *  @param Request $request
-     *  @param Response $response
+     *  @param ServerRequestInterface $request
+     *  @param ResponseInterface $response
      *
-     *  @return Response
+     *  @return ResponseInterface
      */
-    public function index(Request $request, Response $response): Response
+    public function index(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         $todoList = $this->todoRepository->query(
         );
-        return $this->response->withStatus(HttpStatus::HTTP_OK)->withParsedBody(JsonEncoder::encode(array_map(function(Todo $todo) {
+        return $response->withStatus(HttpCodes::HTTP_OK)->withBody(JsonEncoder::encode(array_map(function(TodoEntity $todo) {
             return $todo->toArray();
         }, $todoList)));
     }
 
     /**
      *  show Todo
-     *  @param Request $request
-     *  @param Response $response
+     *  @param ServerRequestInterface $request
+     *  @param ResponseInterface $response
      *
-     *  @return Response
+     *  @return ResponseInterface
      */
-    public function show(Request $request, Response $response): Response
+    public function show(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $todo = $this->todoRepository->find($request->getQuery('id'));
+        $todo = $this->todoRepository->find($request->getAttribute('id'));
 
-        return $this->response->withStatus(HttpStatus::HTTP_OK)->withParsedBody(JsonEncoder::encode($todo->toArray()));
+        return $response->withStatus(HttpCodes::HTTP_OK)->withBody(JsonEncoder::encode($todo->toArray()));
     }
 
     /**
      *  add todo 
      *
-     *  @param Request $request
-     *  @param Response $response
+     *  @param ServerRequestInterface $request
+     *  @param ResponseInterface $response
      *
-     *  @return Response
-     *  @throws ValidationException
+     *  @return ResponseInterface
      */
-    public function add(Request $request, Response $response): Response
+    public function add(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         try {
             $this->todoRepository->store(
@@ -88,71 +87,71 @@ class Todo
                 ->setId(
                     (new Id)->newInstance()
                 )->setName(
-                    (new Name)->parse($request->getPost('name'))
+                    (new Name)->parse($request->getAttribute('name'))
                 )->setDescription(
-                    (new Description)->parse($request->getPost('description'))
+                    (new Description)->parse($request->getAttribute('description'))
                 )
             );
-        } catch (ValidationException $e) {
-            return $response->withStatus(HttpStatus::HTTP_BAD_REQUEST)->parseBody($e->getMessage());
+        } catch (ValidationError $e) {
+            return $response->withStatus(HttpCodes::HTTP_BAD_REQUEST)->withBody($e->getMessage());
         }
-        return $response->withStatus(HttpStatus::Create);
+        return $response->withStatus(HttpCodes::HTTP_CREATED);
     }
 
     /**
      *  todo Change
-     *  @param Request $request
-     *  @param Response $response
+     *  @param ServerRequestInterface $request
+     *  @param ResponseInterface $response
      *
-     *  @return Response
+     *  @return ResponseInterface
      */
-    public function update(Request $request, Response $response): Response
+    public function update(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $todo = $this->todoRepository->find($request->getQuery('id'));
+        $todo = $this->todoRepository->find($request->getAttribute('id'));
         if (empty($todo)) {
-            return $response->withStatus(HttpStatus::HTTP_NOT_FOUND);
+            return $response->withStatus(HttpCodes::HTTP_NOT_FOUND);
         }
 
         try {
             $this->todoRepository->store(
                 $todo
                 ->setName(
-                    (new Name)->parse($request->getPost('name'))
+                    (new Name)->parse($request->getAttribute('name'))
                 )->setDescription(
-                    (new Description)->parse($request->getPost('description'))
+                    (new Description)->parse($request->getAttribute('description'))
                 )
             );
-        } catch (ValidationException $e) {
-            return $response->withStatus(HttpStatus::HTTP_BAD_REQUEST);
+        } catch (ValidationError $e) {
+            return $response->withStatus(HttpCodes::HTTP_BAD_REQUEST);
         } catch (Exception $e) {
-            return $response->withStatus(HttpStatus::HTTP_INTERNAL_SERVER_ERROR);
+            return $response->withStatus(HttpCodes::HTTP_INTERNAL_SERVER_ERROR);
         }
-        return $response->withStatus(HttpStatus::HTTP_NO_CONTENT);
+        return $response->withStatus(HttpCodes::HTTP_NO_CONTENT);
     }
 
     /**
      *  todo Remove
      *
-     *  @param Request $request
-     *  @param Response $response
+     *  @param ServerRequestInterface $request
+     *  @param ResponseInterface $response
      *
-     *  @return Response
+     *  @return ResponseInterface
      */
-    public function remove(Request $request, Response $response): Response
+    public function remove(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $todo = $this->todoRepository->find($query->getQuery('id'));
+        $todo = $this->todoRepository->find($request->getAttribute('id'));
 
         if (empty($todo)) {
-            return $response->withStatus(HttpStatus::HTTP_NOT_FOUND);
+            return $response->withStatus(HttpCodes::HTTP_NOT_FOUND);
         }
 
         try {
             $this->todoRepository->remove($todo);
-        } catch (ValidationException $e) {
-            return $response->withStatus(HttpStatus::HTTP_BAD_REQUEST);
+        } catch (ValidationError $e) {
+            return $response->withStatus(HttpCodes::HTTP_BAD_REQUEST);
         } catch (Exception $e) {
-            return $response->withStatus(HttpStatus::HTTP_INTERNAL_SERVER_ERROR);
+            return $response->withStatus(HttpCodes::HTTP_INTERNAL_SERVER_ERROR);
         }
-        return $response->withStatus(Http::NoContent);
+        return $response->withStatus(HttpCodes::HTTP_NO_CONTENT);
     }
 }

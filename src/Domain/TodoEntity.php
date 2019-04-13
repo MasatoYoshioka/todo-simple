@@ -1,5 +1,5 @@
 <?php
-declare(strct_types=1);
+declare(strict_types=1);
 
 namespace App\Domain;
 
@@ -87,5 +87,13 @@ class TodoEntity
     {
         $this->description = $description;
         return $this;
+    }
+
+    /**
+     * to array
+     * @return array
+     */
+    public function toArray(): array
+    {
     }
 }

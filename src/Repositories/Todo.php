@@ -1,6 +1,5 @@
 <?php
-declare(strct_types=1);
-
+declare(strict_types=1);
 namespace App\Repositories;
 
 use App\Domain\TodoEntity;
@@ -22,6 +21,16 @@ class Todo
     public function store(TodoEntity $todo): TodoEntity
     {
 
+    }
+
+    /**
+     * remove
+     *
+     * @param TodoEntity $todo
+     * @return void
+     */
+    public function remove(TodoEntity $todo): void
+    {
     }
 
     /**
