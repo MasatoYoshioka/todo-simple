@@ -42,9 +42,10 @@ class Name
     /**
      *  validate
      *
-     *  @param mixed
+     *  @param mixed $string
      *  @return string
-     *  @throws ValidateError
+     *  @throws ValidationError
+     *
      */
     private function validate($string): string
     {
@@ -52,11 +53,11 @@ class Name
             throw new ValidationError('名前は文字列でないといけません');
         }
 
-        if (3 > str_len($string)) {
+        if (3 > strlen($string)) {
             throw new ValidationError('名前は３文字以上入力してください');
         }
 
-        if (str_len($string) <= 100) {
+        if (strlen($string) <= 100) {
             throw new ValidationError('名前は100文字以内で入力してください');
         }
 

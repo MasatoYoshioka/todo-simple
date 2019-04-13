@@ -57,7 +57,7 @@ class Id
     private function setId(string $id): self
     {
         $this->id = $id;
-        return self;
+        return $this;
     }
 
     /**

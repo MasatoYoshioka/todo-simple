@@ -3,8 +3,13 @@ declare(strict_types=1);
 
 namespace App\ValueObjects\Todo;
 
+use App\Exceptions\ValidationError;
+
 class Description
 {
+    /** @var string **/
+    private $description;
+
     /**
      *  parse
      *  
@@ -20,9 +25,9 @@ class Description
     /**
      *  validate
      *
-     *  @param mixed
+     *  @param mixed $string
      *  @return string
-     *  @throws ValidateError
+     *  @throws ValidationError
      *
      */
     public function validate($string): string
@@ -31,10 +36,10 @@ class Description
             throw new ValidationError('説明は文字列でないといけません');
         }
 
-        if (3 > str_len($string)) {
+        if (3 > strlen($string)) {
             throw new ValidationError('説明は３文字以上入力してください');
         }
-        if (str_len($string) <= 10000) {
+        if (strlen($string) <= 10000) {
             throw new ValidationError('説明は10000文字以内で入力してください');
         }
 

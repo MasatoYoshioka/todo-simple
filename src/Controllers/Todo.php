@@ -16,7 +16,7 @@ use App\ValueObjects\Todo\Id;
 use App\ValueObjects\Todo\Name;
 use App\ValueObjects\Todo\Description;
 
-use App\Utils\JsonEncoder;
+use App\Utils\Response;
 
 /**
  * Todo Controller
@@ -25,6 +25,7 @@ use App\Utils\JsonEncoder;
  */
 class Todo
 {
+    use Response;
 
     /** @var TodoRepository **/
     private $todoRepository;
@@ -52,9 +53,16 @@ class Todo
     {
         $todoList = $this->todoRepository->query(
         );
-        return $response->withStatus(HttpCodes::HTTP_OK)->withBody(JsonEncoder::encode(array_map(function(TodoEntity $todo) {
-            return $todo->toArray();
-        }, $todoList)));
+        return Response::json(
+            $response
+            ->withStatus(HttpCodes::HTTP_OK),
+                 array_map(
+                     function(TodoEntity $todo) {
+                         return $todo->toArray();
+                     }, 
+                     $todoList
+                 )
+             );
     }
 
     /**
